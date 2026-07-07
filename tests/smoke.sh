@@ -16,7 +16,8 @@ check_command() {
 
 for command_name in \
 	zsh git tmux nvim go gopls goimports gofumpt dlv golangci-lint \
-	uv ruff basedpyright node gh glab lazygit opencode codex claude hermes herdr; do
+	uv ruff basedpyright debugpy tree-sitter node gh glab lazygit \
+	opencode codex claude hermes herdr; do
 	check_command "$command_name"
 done
 

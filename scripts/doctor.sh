@@ -46,7 +46,8 @@ done
 section "Requested tools"
 tools=(
 	nvim tmux go gopls goimports gofumpt dlv golangci-lint
-	uv ruff basedpyright node gh glab lazygit opencode codex claude hermes herdr
+	uv ruff basedpyright debugpy tree-sitter node gh glab lazygit
+	opencode codex claude hermes herdr
 )
 for command_name in "${tools[@]}"; do
 	if command -v "$command_name" >/dev/null 2>&1; then
