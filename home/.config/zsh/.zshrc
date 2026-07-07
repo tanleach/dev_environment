@@ -1,0 +1,118 @@
+# Managed from ~/.dev_environment/home/.config/zsh/.zshrc
+
+# Home Manager session variables are generated without taking ownership of the
+# system zsh binary.
+[[ -r "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]] && \
+  source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+
+export ZSH="$HOME/.local/share/oh-my-zsh"
+export ZSH_CUSTOM="$HOME/.local/share/oh-my-zsh-custom"
+export VISUAL=nvim
+export EDITOR=nvim
+export PAGER=cat
+export GOBIN="$HOME/go/bin"
+export BUN_INSTALL="$HOME/.bun"
+export NVM_DIR="$HOME/.nvm"
+
+# PATH order is intentional. Brew wins over old apt/user-local copies after its
+# entries have been installed; NVM may temporarily override only Node below.
+typeset -U path PATH
+path=(
+  "$HOME/.nix-profile/bin"
+  "$HOME/bin"
+  "$HOME/go/bin"
+  "$BUN_INSTALL/bin"
+  "$HOME/.local/bin"
+  $path
+)
+
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+[[ -d /home/linuxbrew/.linuxbrew/opt/libpq/bin ]] && \
+  path=(/home/linuxbrew/.linuxbrew/opt/libpq/bin $path)
+
+ZSH_THEME=""
+plugins=(git gh golang tmux ubuntu docker zsh-syntax-highlighting)
+source "$ZSH/oh-my-zsh.sh"
+
+# Familiar prompt: [HH:MM:SS] hostname ~/dir/path (branch*) »
+ZSH_THEME_GIT_PROMPT_PREFIX=" %F{magenta}("
+ZSH_THEME_GIT_PROMPT_SUFFIX=")%f"
+ZSH_THEME_GIT_PROMPT_DIRTY="%F{red}*%F{magenta}"
+ZSH_THEME_GIT_PROMPT_CLEAN=""
+PROMPT='%F{8}[%*]%f %F{cyan}%m%f %F{green}%3~%f$(git_prompt_info) %B%(?.%F{blue}.%F{red})»%f%b '
+
+# General
+alias zshreload='source ~/.zshrc'
+alias ll='ls -lhrt'
+alias lll='ls -lahrt'
+alias ccat='bat'
+alias duh='du -h --max-depth=2 | sort -rh | head -10'
+
+# Config shortcuts
+alias vimrc='nvim ~/.config/nvim/init.lua'
+alias zshrc='nvim ~/.zshrc'
+alias tmuxconf='nvim ~/.tmux.conf'
+alias herdrconf='nvim ~/.config/herdr/config.toml'
+alias oc_json='nvim ~/.config/opencode/opencode.json'
+
+# Vim-to-Neovim transition
+alias vi='nvim'
+alias vim='nvim'
+alias oldvim='/usr/bin/vim'
+
+# tmux sessions
+alias ipad='tmux attach -t ipad'
+alias mac='tmux attach -t mac'
+alias strada='tmux attach -t strada'
+alias ubu='tmux attach -t ubu'
+
+# Git
+alias lg='lazygit'
+alias gl='git log --oneline -n5'
+alias gll="git log --pretty='%h|%ad|%al|%s' --date=relative -n 5 | column -t -s'|'"
+alias gr='git remote'
+alias gs='git status'
+alias gd='git diff'
+alias grv='git remote -v'
+
+gitclean() {
+  local branches
+  branches=$(git for-each-ref --format '%(refname:short)' refs/heads \
+    | grep -vE '^(master|main|dev|sandbox|stage)$')
+  if [[ -z $branches ]]; then
+    echo 'No local branches to delete.'
+    return 0
+  fi
+  echo "$branches"
+  echo "Delete these local branches? Type 'yes' to continue:"
+  local confirm_delete
+  read -r confirm_delete
+  [[ $confirm_delete == yes ]] && echo "$branches" | xargs git branch -D
+}
+
+# Docker
+alias dpj='docker ps --format "{{json .}}" | jq "{Name: .Names, Ports: .Ports, Uptime: .RunningFor, Image: .Image}"'
+alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
+
+# AI tools
+alias o='opencode'
+
+# Preserve existing runtimes during the first migration phase. NVM is removed
+# only after Brew Node is verified against active projects.
+[[ -s "$BUN_INSTALL/_bun" ]] && source "$BUN_INSTALL/_bun"
+[[ -s "$NVM_DIR/nvm.sh" ]] && source "$NVM_DIR/nvm.sh"
+[[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+[[ -f "$HOME/.openclaw/completions/openclaw.zsh" ]] && \
+  source "$HOME/.openclaw/completions/openclaw.zsh"
+
+command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)"
+
+# Never place secret values in Home Manager/Nix. Prefer the new mode-0600 file,
+# with the legacy file retained only during migration.
+if [[ -r "$HOME/.config/dev_environment/secrets.env" ]]; then
+  source "$HOME/.config/dev_environment/secrets.env"
+elif [[ -r "$HOME/.envStuff" ]]; then
+  source "$HOME/.envStuff"
+fi

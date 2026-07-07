@@ -1,0 +1,17 @@
+# Nix build outputs and local environments
+/result
+/result-*
+/.direnv/
+
+# Local secrets and machine-only overrides
+/.env
+/.env.*
+!/home/.config/dev_environment/secrets.env.example
+/local.nix
+
+# Neovim runtime state (lazy-lock.json is intentionally tracked)
+/.luarc.json
+
+# Generated diagnostics and backups
+*.log
+*.hm-backup*

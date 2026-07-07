@@ -1,0 +1,27 @@
+name: checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  flake:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@v3.19.0
+      - name: Check flake
+        run: nix flake check --print-build-logs
+      - name: Check Nix style
+        run: |
+          nix develop --command statix check .
+          nix develop --command deadnix --fail .
+          nix develop --command nixfmt --check flake.nix home.nix
+      - name: Check formatting
+        run: |
+          nix develop --command shfmt -d bootstrap-linux.sh rebuild.sh scripts tests
+          nix develop --command stylua --check home/.config/nvim
