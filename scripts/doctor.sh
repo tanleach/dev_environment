@@ -82,6 +82,11 @@ for path in "$HOME/.zshrc" "$HOME/.tmux.conf" "$HOME/.config/nvim" "$HOME/.confi
 	fi
 done
 
+section "Shell activation"
+if ! check_fresh_zsh_activation "$ROOT"; then
+	warning "Automatic dev_environment activation is not healthy; run $ROOT/rebuild.sh and start a new zsh"
+fi
+
 section "State safety"
 for path in "$HOME/.claude" "$HOME/.codex" "$HOME/.config/opencode" "$HOME/.hermes"; do
 	if [[ -d $path ]]; then

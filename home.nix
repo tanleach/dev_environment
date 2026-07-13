@@ -66,6 +66,8 @@ in
     ];
 
     sessionVariables = {
+      DEV_ENVIRONMENT_ACTIVE = "1";
+      DEV_ENVIRONMENT_ROOT = liveConfigRoot;
       EDITOR = "nvim";
       VISUAL = "nvim";
       PAGER = "cat";

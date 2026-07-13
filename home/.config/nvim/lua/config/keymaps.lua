@@ -8,6 +8,9 @@ for _, key in ipairs({ "<Up>", "<Down>", "<Left>", "<Right>" }) do
 	map({ "n", "i" }, key, "<Nop>")
 end
 
+-- Pasting over a visual selection keeps the source register intact.
+vim.cmd([[xnoremap <expr> p 'pgv"'.v:register.'y']])
+
 map("n", "<C-h>", "<C-w>h", { desc = "Focus left window" })
 map("n", "<C-j>", "<C-w>j", { desc = "Focus lower window" })
 map("n", "<C-k>", "<C-w>k", { desc = "Focus upper window" })

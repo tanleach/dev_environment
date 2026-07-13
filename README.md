@@ -26,6 +26,27 @@ applied, all declared CLIs pass smoke checks, and Neovim starts with its locked
 plugin set. Commit the staged source and lockfile before treating this setup as a
 reproducible baseline.
 
+## Automatic shell activation
+
+After one successful apply, Home Manager owns `~/.zshrc` through the stable
+`~/.dev_environment` link. Every new interactive Zsh therefore loads this
+workstation environment automatically. Verify the running shell at any time:
+
+```bash
+dev-env-status
+```
+
+The status command reports the active checkout and managed Zsh file. The
+post-apply smoke test and `nix run .#doctor` also start a clean-environment
+fresh Zsh and verify the activation marker, Home Manager variables, PATH,
+editor, and Oh My Zsh configuration.
+
+This persistent workstation environment is distinct from `nix develop`. The
+flake development shell contains repository-maintenance tools and remains
+explicit so normal terminal startup does not evaluate or build a flake. Changes
+to `home.nix` or the flake require `./rebuild.sh`; the managed Zsh source is
+linked live and is read by the next Zsh process.
+
 ## Safe preview
 
 Before installing or activating anything:
@@ -95,10 +116,13 @@ sessions, histories, and memories remain untouched.
 
 ```bash
 ./rebuild.sh --check     # build/preview
-./rebuild.sh             # confirm and apply
+./rebuild.sh             # confirm/apply; offers an optional Brew upgrade
 nix run .#doctor         # diagnose PATH, missing tools, and state ownership
 nix run .#brew-update    # explicit update; never performs cleanup
 ```
+
+Interactive rebuilds ask whether to update and upgrade declared Brewfile entries.
+`--check`, `--skip-brew`, and non-interactive `--yes` applies do not upgrade Brew.
 
 Host services are deliberately separate:
 

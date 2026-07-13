@@ -14,11 +14,8 @@ fi
 
 ROOT=$(resolve_live_root)
 brew=$(brew_bin) || die "Homebrew is not installed"
+BREWFILE="$ROOT/brew/Brewfile"
 
 confirm "Run explicit Homebrew update and upgrade for declared entries?" || die "Update cancelled"
 
-"$brew" update
-"$brew" bundle install --file "$ROOT/brew/Brewfile" --upgrade
-"$brew" bundle check --file "$ROOT/brew/Brewfile"
-
-info "Homebrew update complete; cleanup was not run"
+brew_upgrade_declared "$brew" "$BREWFILE"

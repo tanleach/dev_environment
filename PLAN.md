@@ -68,6 +68,11 @@ repository demonstrated in the reference video. We will carry over these ideas:
 - one canonical user/home setting threaded through the flake;
 - a stable `~/.dev_environment` symlink to the active checkout;
 - Home Manager out-of-store symlinks for configuration edited live in the repo;
+- a persistent Zsh environment with an exported activation marker, a
+  `dev-env-status` command, and a clean-environment fresh-shell regression
+  check;
+- an explicit repository-maintenance `nix develop` shell rather than evaluating
+  or entering a flake during every interactive Zsh startup;
 - a small Lua Neovim setup using `lazy.nvim`, not a full editor distribution;
 - one reviewed agent-policy source linked into Claude, Codex, and OpenCode;
 - an explicit build/check path that does not activate changes.
@@ -188,7 +193,9 @@ second time.
 - `--check`: report what is installed or missing without changing the machine.
 - `--host`: opt into missing host-package/service work; the default is user-only.
 - `--repo PATH`: apply an existing checkout from a non-default location.
-- `--no-brew-upgrade`: install missing Brew entries without upgrading existing ones.
+- Brew upgrades must remain opt-in: either `nix run .#brew-update` or the
+  separate interactive prompt during apply. Non-interactive apply must not
+  upgrade Brew automatically.
 - Back up pre-existing unmanaged dotfiles before Home Manager takes ownership.
 - Write a backup manifest with original paths and restoration commands. Use Home
   Manager's backup behavior for collisions; never use blanket forced links.
@@ -287,21 +294,25 @@ not a large prebuilt distribution.
 2. Translate the useful existing options and mappings into conventional Lua.
 3. Preserve Gruvbox initially, or switch all terminal tools to Catppuccin only
    after the editor works. Avoid changing editor, theme, and key habits together.
-4. Add only the baseline plugins: Treesitter, Telescope, Oil file browsing, Git
-   signs, status line, completion, snippets, LSP, and formatting.
+4. Add only the baseline plugins: Treesitter, Telescope, Oil file browsing,
+   WhichKey leader hints, Git signs, status line, completion, snippets, LSP, and
+   formatting.
    Manage them with `lazy.nvim` and commit `lazy-lock.json` so plugin revisions
    are reviewable. The first Neovim launch will require network access.
    `lazy.nvim` owns editor plugins only; Brew/Nix/uv owns LSP servers, formatters,
    linters, and debuggers. Do not introduce Mason as a second binary owner.
-5. Configure language support:
+5. Use Neovim's built-in tmux clipboard provider inside tmux, with OSC52 as the
+   SSH-without-tmux fallback. This keeps remote copy/paste attached to the outer
+   terminal and avoids PATH-shadowing desktop clipboard wrappers.
+6. Configure language support:
    - Go: `gopls`, `goimports`/`gofumpt`, Delve, and test shortcuts.
    - Python: `basedpyright` or `pyright`, Ruff, uv-aware environments, and pytest.
    - Nix/Lua: `nil` or `nixd`, `nixfmt`, and `lua-language-server`.
-6. Set `EDITOR` and `VISUAL` to `nvim`, add `vi`/`vim` compatibility aliases,
+7. Set `EDITOR` and `VISUAL` to `nvim`, add `vi`/`vim` compatibility aliases,
    and retain an explicit `oldvim` escape hatch for one migration phase.
-7. Validate with `nvim --headless` startup, `:checkhealth`, a Go module, and a uv
+8. Validate with `nvim --headless` startup, `:checkhealth`, a Go module, and a uv
    Python project before removing the old Vim setup and config.
-8. Verify every LSP/formatter/debugger executable in a clean shell, including
+9. Verify every LSP/formatter/debugger executable in a clean shell, including
    environment discovery inside tmux and Herdr.
 
 ## AI tool configuration
@@ -446,7 +457,7 @@ mapping with Herdr's key-help screen and reload changes with
 | --- | --- | --- |
 | Preview | `nix run .#doctor` | Read-only host, PATH, package, and config report |
 | Build | `nix flake check` | Evaluate and build without activation |
-| Apply user setup | `nix run .#apply` | Preflight/build, Brew install, Home Manager switch, smoke checks |
+| Apply user setup | `nix run .#apply` | Preflight/build, Brew install, optional prompted Brew upgrade, Home Manager switch, smoke checks |
 | Apply host setup | `nix run .#host-ubuntu` | Explicit sudo-required Docker/NVIDIA/SSH work |
 | Update pins | `nix flake update` | Review lock-file changes before applying |
 | Update Brew tools | `nix run .#brew-update` | Explicit update/upgrade, never incidental to shell startup |
@@ -460,8 +471,10 @@ cleanup`; initial host runs should preserve backups of changed files.
 
 The apply order is intentional: finish all read-only checks and build the Home
 Manager generation first; install missing Brew entries without upgrade/cleanup;
-activate Home Manager only after those steps pass; then run smoke tests. This
-reduces partial activation when Brew fails. Updates are a separate command.
+then, for interactive applies, offer a separate prompt to update and upgrade the
+declared Brewfile entries. Activate Home Manager only after those steps pass,
+then run smoke tests. This reduces partial activation when Brew fails. Brew
+updates remain opt-in through either that prompt or the explicit update command.
 Garbage collection and generation pruning must also be explicit maintenance,
 never an automatic side effect of applying configuration.
 
@@ -476,6 +489,8 @@ never an automatic side effect of applying configuration.
 - `gh --version` and `glab --version` pass; authenticated API checks are reported
   separately because credentials are intentionally not provisioned.
 - Zsh, aliases, tmux keybindings, clipboard behavior, and prompt remain familiar.
+- A clean, inheritance-free interactive Zsh proves that the Home Manager
+  environment activates automatically and `dev-env-status` reports its source.
 - Neovim opens cleanly and Go/Python LSP, format, test, and debug workflows work.
 - OpenCode, Codex, Claude, and Hermes start and pass their available diagnostics.
 - `herdr --version` succeeds and Herdr can discover the installed agent CLIs.

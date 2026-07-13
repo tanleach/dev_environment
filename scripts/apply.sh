@@ -71,6 +71,16 @@ if ((check_only == 1)); then
 	exit 0
 fi
 
+if ((skip_brew == 0)); then
+	if [[ ${DEV_ENV_ASSUME_YES:-0} == 1 ]]; then
+		info "Skipping optional Homebrew upgrade during non-interactive apply; run nix run .#brew-update -- --yes to upgrade declared entries."
+	elif confirm "Run Homebrew update and upgrade declared Brewfile entries now?"; then
+		brew_upgrade_declared "$brew" "$BREWFILE"
+	else
+		info "Skipping optional Homebrew upgrade"
+	fi
+fi
+
 cat <<EOF
 
 Home Manager will now take ownership of these reviewed paths:

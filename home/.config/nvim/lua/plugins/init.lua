@@ -61,6 +61,11 @@ return {
 
 	{ "lewis6991/gitsigns.nvim", opts = {} },
 	{ "nvim-lualine/lualine.nvim", opts = { options = { theme = "gruvbox" } } },
+	{
+		"folke/which-key.nvim",
+		lazy = false,
+		opts = {},
+	},
 
 	{
 		"saghen/blink.cmp",

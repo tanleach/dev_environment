@@ -1,5 +1,12 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
+-- Homebrew Git currently stalls on GitHub smart HTTP on this workstation.
+-- Restrict the fallback to Neovim and Git only; other tools remain Brew-first.
+local system_git_dir = "/usr/lib/git-core"
+if vim.fn.executable(system_git_dir .. "/git") == 1 then
+	vim.env.PATH = system_git_dir .. ":" .. (vim.env.PATH or "")
+end
+
 if not vim.uv.fs_stat(lazypath) then
 	local result = vim.fn.system({
 		"git",

@@ -6,6 +6,7 @@ opt.encoding = "utf-8"
 opt.fileencoding = "utf-8"
 opt.termguicolors = true
 opt.background = "dark"
+opt.clipboard = "unnamedplus"
 
 opt.expandtab = true
 opt.shiftwidth = 4

@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
+# shellcheck source=scripts/common.sh
+source "$SCRIPT_DIR/../scripts/common.sh"
+
 failures=0
 
 check_command() {
@@ -20,6 +24,10 @@ for command_name in \
 	opencode codex claude hermes herdr; do
 	check_command "$command_name"
 done
+
+if ! check_fresh_zsh_activation "$SCRIPT_DIR/.."; then
+	failures=$((failures + 1))
+fi
 
 if command -v nvim >/dev/null 2>&1; then
 	nvim --headless '+lua vim.print("nvim startup ok")' +qa
