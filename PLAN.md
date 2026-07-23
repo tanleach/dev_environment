@@ -193,9 +193,9 @@ second time.
 - `--check`: report what is installed or missing without changing the machine.
 - `--host`: opt into missing host-package/service work; the default is user-only.
 - `--repo PATH`: apply an existing checkout from a non-default location.
-- Brew upgrades must remain opt-in: either `nix run .#brew-update` or the
-  separate interactive prompt during apply. Non-interactive apply must not
-  upgrade Brew automatically.
+- Brew upgrades must remain opt-in: either `nix run .#brew-update`, the separate
+  interactive prompt during apply, or the explicit `--upgrade-brew` apply flag.
+  Non-interactive apply must not upgrade Brew without `--upgrade-brew`.
 - Back up pre-existing unmanaged dotfiles before Home Manager takes ownership.
 - Write a backup manifest with original paths and restoration commands. Use Home
   Manager's backup behavior for collisions; never use blanket forced links.
@@ -457,7 +457,7 @@ mapping with Herdr's key-help screen and reload changes with
 | --- | --- | --- |
 | Preview | `nix run .#doctor` | Read-only host, PATH, package, and config report |
 | Build | `nix flake check` | Evaluate and build without activation |
-| Apply user setup | `nix run .#apply` | Preflight/build, Brew install, optional prompted Brew upgrade, Home Manager switch, smoke checks |
+| Apply user setup | `nix run .#apply` | Preflight/build, Brew install, optional prompted or `--upgrade-brew` upgrade, Home Manager switch, smoke checks |
 | Apply host setup | `nix run .#host-ubuntu` | Explicit sudo-required Docker/NVIDIA/SSH work |
 | Update pins | `nix flake update` | Review lock-file changes before applying |
 | Update Brew tools | `nix run .#brew-update` | Explicit update/upgrade, never incidental to shell startup |

@@ -117,12 +117,15 @@ sessions, histories, and memories remain untouched.
 ```bash
 ./rebuild.sh --check     # build/preview
 ./rebuild.sh             # confirm/apply; offers an optional Brew upgrade
+./rebuild.sh --yes --upgrade-brew  # non-interactive apply with Brew upgrades
 nix run .#doctor         # diagnose PATH, missing tools, and state ownership
 nix run .#brew-update    # explicit update; never performs cleanup
 ```
 
 Interactive rebuilds ask whether to update and upgrade declared Brewfile entries.
-`--check`, `--skip-brew`, and non-interactive `--yes` applies do not upgrade Brew.
+`--upgrade-brew` explicitly approves that upgrade, including when combined with
+`--yes`. `--check`, `--skip-brew`, and non-interactive `--yes` applies without
+`--upgrade-brew` do not upgrade Brew. No rebuild mode performs Brew cleanup.
 
 Host services are deliberately separate:
 
