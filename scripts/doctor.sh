@@ -120,7 +120,7 @@ if brew=$(brew_bin); then
 	else
 		HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_BUNDLE_NO_UPGRADE=1 \
 			"$brew" bundle check --verbose --file "$BREWFILE" || true
-		warning "Brewfile has missing entries; apply will install without cleanup or broad upgrades"
+		warning "Brewfile has missing entries; apply will reconcile and upgrade declared entries without cleanup"
 	fi
 else
 	warning "Homebrew is unavailable"

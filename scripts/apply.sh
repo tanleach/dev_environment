@@ -8,16 +8,14 @@ source "${DEV_ENV_COMMON:-$SCRIPT_DIR/common.sh}"
 
 check_only=0
 skip_brew=0
-upgrade_brew=0
 
 usage() {
 	cat <<'EOF'
-Usage: dev-env-apply [--check] [--skip-brew] [--upgrade-brew] [--yes]
+Usage: dev-env-apply [--check] [--skip-brew] [--yes]
 
   --check          Build and report without activating Home Manager or changing Brew entries.
   --skip-brew      Do not check, install, or upgrade Brewfile entries.
-  --upgrade-brew   Update Homebrew and upgrade declared Brewfile entries without prompting.
-  --yes            Skip interactive confirmations; Brew upgrades still require --upgrade-brew.
+  --yes            Skip interactive confirmations.
 EOF
 }
 
@@ -25,7 +23,6 @@ while (($#)); do
 	case $1 in
 	--check) check_only=1 ;;
 	--skip-brew) skip_brew=1 ;;
-	--upgrade-brew) upgrade_brew=1 ;;
 	--yes) export DEV_ENV_ASSUME_YES=1 ;;
 	-h | --help)
 		usage
@@ -35,14 +32,6 @@ while (($#)); do
 	esac
 	shift
 done
-
-if ((upgrade_brew == 1 && check_only == 1)); then
-	die "--upgrade-brew cannot be combined with --check"
-fi
-
-if ((upgrade_brew == 1 && skip_brew == 1)); then
-	die "--upgrade-brew cannot be combined with --skip-brew"
-fi
 
 source_nix_daemon
 require_command nix
@@ -83,15 +72,8 @@ if ((check_only == 1)); then
 fi
 
 if ((skip_brew == 0)); then
-	if ((upgrade_brew == 1)); then
-		brew_upgrade_declared "$brew" "$BREWFILE"
-	elif [[ ${DEV_ENV_ASSUME_YES:-0} == 1 ]]; then
-		info "Skipping optional Homebrew upgrade during non-interactive apply; rerun with --upgrade-brew to include it."
-	elif confirm "Run Homebrew update and upgrade declared Brewfile entries now?"; then
-		brew_upgrade_declared "$brew" "$BREWFILE"
-	else
-		info "Skipping optional Homebrew upgrade"
-	fi
+	info "Updating and upgrading declared Brewfile entries"
+	brew_upgrade_declared "$brew" "$BREWFILE"
 fi
 
 cat <<EOF

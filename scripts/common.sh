@@ -168,6 +168,18 @@ expected_zshrc=${expected_root:A}/home/.config/zsh/.zshrc
 [[ ${active_zshrc:A} == ${expected_zshrc:A} ]] || fail "zsh loaded an unexpected startup file"
 command -v nix >/dev/null 2>&1 || fail "nix is not on PATH"
 command -v brew >/dev/null 2>&1 || fail "brew is not on PATH"
+
+brew_owned_commands=(
+  opencode basedpyright bat dlv fd fzf gh git glab go gofumpt goimports
+  golangci-lint gopls herdr hermes jq lazygit nvim node rg ruff sqlite3 tmux
+  tree tree-sitter unzip uv wget codex claude
+)
+for command_name in "${brew_owned_commands[@]}"; do
+  command_path=$commands[$command_name]
+  [[ -n $command_path ]] || fail "$command_name is missing from PATH"
+  [[ $command_path == /home/linuxbrew/.linuxbrew/bin/* ]] ||
+    fail "$command_name is shadowed by $command_path"
+done
 ' dev-environment-zsh-check "$root" 2>&1
 	); then
 		warn "A fresh zsh did not activate the managed environment"

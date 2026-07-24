@@ -1,5 +1,5 @@
-# User-facing tools are Homebrew-owned. This file installs missing entries but
-# is never used for automatic cleanup.
+# User-facing tools are Homebrew-owned. Normal rebuilds reconcile and upgrade
+# this inventory but never use it for automatic cleanup.
 
 tap "anomalyco/tap"
 

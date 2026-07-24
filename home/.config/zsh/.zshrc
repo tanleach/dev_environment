@@ -20,8 +20,8 @@ export GOBIN="$HOME/go/bin"
 export BUN_INSTALL="$HOME/.bun"
 export NVM_DIR="$HOME/.nvm"
 
-# PATH order is intentional. Brew wins over old apt/user-local copies after its
-# entries have been installed; NVM may temporarily override only Node below.
+# Build a complete PATH first. The final normalization below makes Brewfile-owned
+# workstation tools win over old apt and user-local installer copies.
 typeset -U path PATH
 path=(
   "$HOME/.nix-profile/bin"
@@ -149,6 +149,8 @@ elif [[ -r "$HOME/.envStuff" ]]; then
   source "$HOME/.envStuff"
 fi
 
-# >>> Codex installer >>>
-export PATH="/home/tleach/.local/bin:$PATH"
-# <<< Codex installer <<<
+# brew/Brewfile is authoritative for workstation-level tools. Keep other
+# installers available as fallbacks without allowing them to shadow Brew.
+if [[ -n ${HOMEBREW_PREFIX:-} ]]; then
+  path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)
+fi

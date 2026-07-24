@@ -191,11 +191,12 @@ second time.
 ### Required flags and safety behavior
 
 - `--check`: report what is installed or missing without changing the machine.
+- `--skip-brew`: apply Home Manager without reconciling the Brewfile inventory.
 - `--host`: opt into missing host-package/service work; the default is user-only.
 - `--repo PATH`: apply an existing checkout from a non-default location.
-- Brew upgrades must remain opt-in: either `nix run .#brew-update`, the separate
-  interactive prompt during apply, or the explicit `--upgrade-brew` apply flag.
-  Non-interactive apply must not upgrade Brew without `--upgrade-brew`.
+- Normal applies reconcile and upgrade the declared Brewfile entries. Homebrew is
+  the authoritative provider for workstation-level user-facing tools; managed
+  Zsh keeps its executables ahead of alternate user-local installers.
 - Back up pre-existing unmanaged dotfiles before Home Manager takes ownership.
 - Write a backup manifest with original paths and restoration commands. Use Home
   Manager's backup behavior for collisions; never use blanket forced links.
@@ -457,7 +458,7 @@ mapping with Herdr's key-help screen and reload changes with
 | --- | --- | --- |
 | Preview | `nix run .#doctor` | Read-only host, PATH, package, and config report |
 | Build | `nix flake check` | Evaluate and build without activation |
-| Apply user setup | `nix run .#apply` | Preflight/build, Brew install, optional prompted or `--upgrade-brew` upgrade, Home Manager switch, smoke checks |
+| Apply user setup | `nix run .#apply` | Preflight/build, reconcile and upgrade declared Brew entries, Home Manager switch, smoke checks |
 | Apply host setup | `nix run .#host-ubuntu` | Explicit sudo-required Docker/NVIDIA/SSH work |
 | Update pins | `nix flake update` | Review lock-file changes before applying |
 | Update Brew tools | `nix run .#brew-update` | Explicit update/upgrade, never incidental to shell startup |
@@ -470,11 +471,11 @@ must report those changes separately. Initial Brew runs should avoid `brew bundl
 cleanup`; initial host runs should preserve backups of changed files.
 
 The apply order is intentional: finish all read-only checks and build the Home
-Manager generation first; install missing Brew entries without upgrade/cleanup;
-then, for interactive applies, offer a separate prompt to update and upgrade the
-declared Brewfile entries. Activate Home Manager only after those steps pass,
-then run smoke tests. This reduces partial activation when Brew fails. Brew
-updates remain opt-in through either that prompt or the explicit update command.
+Manager generation first; reconcile missing Brew entries without cleanup;
+then update and upgrade the declared Brewfile entries. Activate Home Manager only
+after those steps pass, then run smoke tests. This reduces partial activation
+when Brew fails while ensuring each successful normal apply selects current
+Brewfile-managed tools. `--check` and `--skip-brew` remain non-mutating opt-outs.
 Garbage collection and generation pruning must also be explicit maintenance,
 never an automatic side effect of applying configuration.
 

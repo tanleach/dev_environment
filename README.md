@@ -90,8 +90,9 @@ git add flake.lock
 
 The bootstrap verifies checksummed, version-pinned Nix and Homebrew installers.
 It reuses existing installations, creates `~/.dev_environment`, builds before
-activation, installs missing Brew entries without cleanup or broad upgrades,
-and asks before Home Manager takes ownership of dotfiles.
+activation, reconciles and upgrades the declared Brewfile inventory without
+cleanup or unrelated broad upgrades, and asks before Home Manager takes
+ownership of dotfiles.
 
 Existing managed paths are moved to timestamped backups under:
 
@@ -115,17 +116,18 @@ sessions, histories, and memories remain untouched.
 ## Daily workflow
 
 ```bash
-./rebuild.sh --check     # build/preview
-./rebuild.sh             # confirm/apply; offers an optional Brew upgrade
-./rebuild.sh --yes --upgrade-brew  # non-interactive apply with Brew upgrades
-nix run .#doctor         # diagnose PATH, missing tools, and state ownership
-nix run .#brew-update    # explicit update; never performs cleanup
+./rebuild.sh --check  # build/preview; does not change Brew or Home Manager
+./rebuild.sh          # upgrade declared Brew apps, activate, and smoke-test
+./rebuild.sh --yes    # same operation without interactive confirmations
+nix run .#doctor      # diagnose PATH, missing tools, and state ownership
+nix run .#brew-update # update declared Brew apps only; never performs cleanup
 ```
 
-Interactive rebuilds ask whether to update and upgrade declared Brewfile entries.
-`--upgrade-brew` explicitly approves that upgrade, including when combined with
-`--yes`. `--check`, `--skip-brew`, and non-interactive `--yes` applies without
-`--upgrade-brew` do not upgrade Brew. No rebuild mode performs Brew cleanup.
+Every normal rebuild updates and upgrades the declared Brewfile entries. The
+managed Zsh then puts Homebrew ahead of alternate user-local installers, so a
+new terminal resolves the inventory selected by this repository. `--check` is
+read-only, `--skip-brew` explicitly bypasses Brew, and no rebuild mode performs
+Brew cleanup.
 
 Host services are deliberately separate:
 
