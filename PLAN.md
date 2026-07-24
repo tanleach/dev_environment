@@ -359,8 +359,11 @@ this familiar mapping as the reviewed baseline:
 | Side-by-side split | `prefix`, then `v` | `split_vertical = "prefix+v"` |
 | Top/bottom split | `prefix`, then `h` | `split_horizontal = "prefix+h"` |
 | Focus left/down/up/right | `Ctrl-h/j/k/l` | `focus_pane_* = "ctrl+h/j/k/l"` |
-| New window/tab | `prefix`, then `n` | `new_tab = "prefix+n"` |
+| New window/tab | `prefix`, then `c` | `new_tab = "prefix+c"` |
 | Previous/next window/tab | `Alt-j` / `Alt-k` | `previous_tab = "alt+j"`, `next_tab = "alt+k"` |
+| New workspace | `prefix`, then `Shift-c` | `new_workspace = "prefix+shift+c"` |
+| Previous/next workspace | `Ctrl-Alt-j` / `Ctrl-Alt-k` | `previous_workspace = "ctrl+alt+j"`, `next_workspace = "ctrl+alt+k"` |
+| Switch workspace | `prefix`, then `1`…`9` | `switch_workspace = "prefix+1..9"` |
 | Rename window/tab | `prefix`, then `r` | `rename_tab = "prefix+r"` |
 | Resize mode | `prefix`, then `Shift-e`; resize with `h/j/k/l` | `resize_mode = "prefix+shift+e"` |
 | Copy mode | `prefix`, then `[` | `copy_mode = "prefix+["`; retain vi selection/copy habits |

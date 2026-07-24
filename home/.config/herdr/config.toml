@@ -15,22 +15,49 @@ new_cwd = "follow"
 [keys]
 prefix = "ctrl+space"
 
+# Panes
 split_vertical = "prefix+v"
 split_horizontal = "prefix+h"
 focus_pane_left = "ctrl+h"
 focus_pane_down = "ctrl+j"
 focus_pane_up = "ctrl+k"
 focus_pane_right = "ctrl+l"
+resize_mode = "prefix+shift+e"
+copy_mode = "prefix+["
 
-new_tab = "prefix+n"
+# Tabs
+new_tab = "prefix+c"
 previous_tab = "alt+j"
 next_tab = "alt+k"
 rename_tab = "prefix+r"
-resize_mode = "prefix+shift+e"
-copy_mode = "prefix+["
+switch_tab = ""
+
+# Workspaces
+new_workspace = "prefix+shift+c"
+previous_workspace = "ctrl+alt+j"
+next_workspace = "ctrl+alt+k"
+switch_workspace = "prefix+1..9"
+
+[[keys.command]]
+key = "prefix+shift+s"
+type = "pane"
+description = "broadcast to tab panes"
+command = '''
+printf 'Broadcast: '
+IFS= read -r text
+"$HERDR_BIN_PATH" pane list |
+  jq -r --arg tab "$HERDR_ACTIVE_TAB_ID" --arg self "$HERDR_PANE_ID" \
+    '.result.panes[] | select(.tab_id == $tab and .pane_id != $self) | .pane_id' |
+  while IFS= read -r pane; do
+    "$HERDR_BIN_PATH" pane run "$pane" "$text" >/dev/null
+  done
+'''
 
 [theme]
 name = "gruvbox"
 
 [ui.sound]
 enabled = false
+
+[ui]
+agent_panel_sort = "spaces"
